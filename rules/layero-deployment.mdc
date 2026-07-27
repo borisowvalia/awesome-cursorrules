@@ -37,8 +37,16 @@ It detects the framework, writes the config, and appends a rules block to
   inline; there has been no browser setup wizard since v0.5.0.
 - Do not pass `--provider` to `layero login`. The flag was removed in v0.5.x;
   the provider is chosen in the browser.
-- Do not pass `--prod` unless the user explicitly asked for production.
-  Without it a deploy is an isolated preview and cannot affect the live site.
+- Do not assume a plain `layero deploy` is a safe preview. For a project
+  created from the CLI it is **not**: direct uploads auto-promote, so every
+  deploy replaces what visitors see at `<project>.layero.app`. `--prod`
+  matters only for projects with a connected git repository, where it targets
+  the production environment.
+- Do not offer `--branch` as a way to publish somewhere isolated. The flag is
+  accepted and silently ignored for direct uploads — the backend files every
+  archive deploy under the reserved `cli` environment. Isolated previews come
+  from pushing to a branch of a connected repository, nothing else. If the
+  user wants a version "just to look at", say that it needs a repository.
 
 ## Events to handle
 
@@ -76,7 +84,7 @@ Browser sign-in cannot work on a runner. Pipelines use a long-lived token
 created in the dashboard and passed through the environment:
 
 ```bash
-LAYERO_TOKEN=... npx layero@latest deploy --prod --yes
+LAYERO_TOKEN=... npx layero@latest deploy --project my-site --yes
 ```
 
 `LAYERO_TOKEN` takes priority over a cached local login, which matters on a
@@ -84,8 +92,12 @@ developer machine that is signed in to a different account. `--yes` skips the
 confirmation prompt that would otherwise wait forever with no one to answer
 it.
 
+Pass `--project` in a pipeline, not `--name`. `--name` only labels a project
+at creation, so a repeated pipeline run without a link creates a **new**
+project every time instead of updating one.
+
 ## Reference
 
 - CLI package: <https://www.npmjs.com/package/layero>
-- JSON event schema: <https://docs.layero.ru/cli/json-events>
-- Agent guide: <https://docs.layero.ru/cli/agents>
+- JSON event schema: <https://docs.layero.ru/en/cli/json-events>
+- Agent guide: <https://docs.layero.ru/en/cli/agents>
