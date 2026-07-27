@@ -39,9 +39,9 @@ It detects the framework, writes the config, and appends a rules block to
   the provider is chosen in the browser.
 - Do not assume a plain `layero deploy` is a safe preview. For a project
   created from the CLI it is **not**: direct uploads auto-promote, so every
-  deploy replaces what visitors see at `<project>.layero.app`. `--prod`
-  matters only for projects with a connected git repository, where it targets
-  the production environment.
+  deploy replaces what visitors see at the project's public address — the same
+  `ready.url` the previous deploy printed. `--prod` matters only for projects
+  with a connected git repository, where it targets the production environment.
 - Do not offer `--branch` as a way to publish somewhere isolated. The flag is
   accepted and silently ignored for direct uploads — the backend files every
   archive deploy under the reserved `cli` environment. Isolated previews come
@@ -84,13 +84,14 @@ Browser sign-in cannot work on a runner. Pipelines use a long-lived token
 created in the dashboard and passed through the environment:
 
 ```bash
-LAYERO_TOKEN=... npx layero@latest deploy --project my-site --yes
+LAYERO_TOKEN=... npx layero@latest deploy --project my-site --json --yes
 ```
 
 `LAYERO_TOKEN` takes priority over a cached local login, which matters on a
 developer machine that is signed in to a different account. `--yes` skips the
 confirmation prompt that would otherwise wait forever with no one to answer
-it.
+it. Keep `--json` here too: a runner has no one reading the terminal, and the
+`ready` / `error` events are what a pipeline step can actually branch on.
 
 Pass `--project` in a pipeline, not `--name`. `--name` only labels a project
 at creation, so a repeated pipeline run without a link creates a **new**
